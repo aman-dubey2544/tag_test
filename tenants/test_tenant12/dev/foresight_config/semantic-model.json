@@ -1,0 +1,1655 @@
+{
+    "contexts": [
+        {
+            "name": "forecast",
+            "params": [
+                {
+                    "name": "hierarchy_id",
+                    "type": "int",
+                    "default": "0"
+                },
+                {
+                    "name": "Param 1",
+                    "type": "datetime",
+                    "default": "15"
+                },
+                {
+                    "name": "New",
+                    "type": "bigint",
+                    "default": "23"
+                },
+                {
+                    "name": "New param",
+                    "type": "bigint",
+                    "default": "13"
+                }
+            ]
+        },
+        {
+            "name": "products_listing",
+            "params": [
+                {
+                    "name": "strategyId",
+                    "type": "int",
+                    "default": 100
+                },
+                {
+                    "name": "hierarchy_id",
+                    "type": "int",
+                    "default": 0
+                }
+            ]
+        },
+        {
+            "name": "product_overview",
+            "params": [
+                {
+                    "name": "strategyId",
+                    "type": "int",
+                    "default": 100
+                }
+            ]
+        },
+        {
+            "name": "product_forecast",
+            "params": [
+                {
+                    "name": "strategyId",
+                    "type": "int",
+                    "default": 100
+                },
+                {
+                    "name": "hierarchy_id",
+                    "type": "int",
+                    "default": 0
+                }
+            ]
+        },
+        {
+            "name": "Context 01",
+            "params": [
+                {
+                    "name": "Param 1",
+                    "type": "float",
+                    "default": "10.8"
+                },
+                {
+                    "name": "param2",
+                    "type": "int",
+                    "default": "0"
+                }
+            ]
+        }
+    ],
+    "tables": [
+        {
+            "origin": "derived",
+            "name": "forecast_table",
+            "type": "fact",
+            "alias": "SELECT sku_id, channel_id, date, forecast_units, forecast_revenue, total_adjustment, 1 as dummy_col_1 FROM forecast_daily  WHERE strategy_id = $strategyId AND is_latest_computation='true' order by date",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "past_future_events",
+            "type": "fact",
+            "alias": "select * from (select id, channel_id, start_date, end_date, distribution, CAST(null AS BOOLEAN) as is_enabled, name, type, percentage from fact_advertising) as aa union all (select id, channel_id, start_date, end_date, distribution, is_enabled, name, type, percentage from fact_proposed_advertising where strategy_id = $strategyId )",
+            "contexts": [
+                "product_forecast"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "product_variations",
+            "type": "dimension",
+            "alias": "select aa.product_id, bb.upc, aa.sku_per_model_list from (select product_id,  json_object_agg(id, json_build_object( 'Color', to_json(attributes->'Color'), 'Scent', to_json(attributes->'Scent'))) as sku_per_model_list  from dim_sku group by product_id) as aa full join (select product_id, upc from dim_sku) as bb on (aa.product_id = bb.product_id)",
+            "contexts": [
+                "products_listing",
+                "forecast"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "sell_through_table",
+            "type": "dimension",
+            "alias": "select channel_id, sku_id, date, sum(units) as ordered_qty, 1 as dummy_col_sell_thru from fact_daily_sales where is_sell_through is True group by channel_id, sku_id,date",
+            "contexts": [
+                "product_overview",
+                "forecast"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "sell_in_table",
+            "type": "dimension",
+            "alias": "select channel_id, sku_id, date, sum(units) as ordered_qty, sum(average_price) as total_price, ROUND(sum(units) * avg(average_price)) AS sales_revenue, EXTRACT(MONTH FROM CAST(date::date AS DATE)) as month, EXTRACT(YEAR FROM CAST(date::date AS DATE)) as year, 1 as dummy_col_sell_in from fact_daily_sales where is_sell_through is False group by channel_id, sku_id,date",
+            "contexts": [
+                "product_overview",
+                "forecast"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "dim_hierarchy",
+            "type": "dimension",
+            "alias": null,
+            "contexts": [
+                "forecast",
+                "products_listing"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "category_hierarchy_derived",
+            "type": "dimension",
+            "alias": "select * from category_hierarchy where hierarchy_id = '$hierarchy_id'",
+            "contexts": [
+                "forecast",
+                "products_listing"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "product_to_category_hierarchy_derived",
+            "type": "dimension",
+            "alias": "select * from product_to_category_hierarchy where hierarchy_id = '$hierarchy_id'",
+            "contexts": [
+                "products_listing",
+                "forecast"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "dim_sku",
+            "type": "dimension",
+            "alias": null,
+            "contexts": [
+                "forecast",
+                "product_overview"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "dim_product",
+            "type": "dimension",
+            "alias": null,
+            "contexts": [
+                "forecast",
+                "products_listing",
+                "product_overview"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "dim_channel",
+            "type": "dimension",
+            "alias": null,
+            "contexts": [
+                "forecast",
+                "product_overview",
+                "product_forecast"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "m_sku_channel_merged",
+            "type": "fact",
+            "alias": "select 1 as dummy_col, aa.sku_id, aa.channel_id, forecast_error_last_month, forecast_error_2nd_last_month, forecast_error_3rd_last_month, forecast_error_last_month_underperform, forecast_error_last_month_overperform, forecast_last_month_units, forecast_current_month_units, forecast_next_month_units, forecast_next_2nd_month_units, forecast_sell_in_velocity_current_month, forecast_sell_in_velocity_next_month, forecast_sell_in_velocity_next_2nd_month, sales_velocity_last_month, sales_velocity_2nd_last_month, sales_velocity_3rd_last_month, sales_velocity_last_month_dollars, sales_velocity_2nd_last_month_dollars, sales_velocity_3rd_last_month_dollars, sales_current_month, revenue_current_month, sales_last_month, sales_2nd_last_month, sales_3rd_last_month, revenue_last_month, revenue_2nd_last_month, revenue_3rd_last_month from (select * from m_sku_channel) as aa full join (select * from m_sku_channel_strategy where strategy_id = $strategyId) as bb on (aa.sku_id = bb.sku_id and aa.channel_id = bb.channel_id)",
+            "contexts": [
+                "forecast",
+                "product_overview"
+            ]
+        },
+        {
+            "origin": "derived",
+            "name": "fact_past_and_future_sales_orders",
+            "type": "fact",
+            "alias": "SELECT * FROM (SELECT past.sku_id, past.channel_id, past.date, past.units AS actual_units, past.units * past.average_price AS actual_revenue, EXTRACT(MONTH FROM CAST(past.date::date AS DATE)) as month, EXTRACT(YEAR FROM CAST(past.date::date AS DATE)) as year, 0 AS forecast_units, 0 AS forecast_revenue, 0 AS total_adjustment, 1 as dummy_col_1 FROM fact_daily_sales past WHERE past.date < CURRENT_DATE AND past.is_sell_through = false) AS past_long union all (SELECT future.sku_id, future.channel_id, future.date, 0 AS actual_units, 0 AS actual_revenue, EXTRACT(MONTH FROM CAST(future.date::date AS DATE)) as month, EXTRACT(YEAR FROM CAST(future.date::date AS DATE)) as year,future.forecast_units as forecast_units, future.forecast_revenue as forecast_revenue, total_adjustment, 1 as dummy_col_1 FROM forecast_daily as future WHERE future.date >= CURRENT_DATE AND future.strategy_id = $strategyId AND future.is_latest_computation='true')",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "app_configuration",
+            "type": "dimension",
+            "alias": null,
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "app_dashboard_view",
+            "type": "fact",
+            "alias": null,
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "origin": "primary",
+            "name": "forecast_daily",
+            "type": "dimension",
+            "alias": null,
+            "contexts": [
+                "forecast"
+            ]
+        }
+    ],
+    "elements": [
+        {
+            "name": "hierarchy_id",
+            "table": "dim_hierarchy",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "hierarchy_name",
+            "table": "dim_hierarchy",
+            "column": "name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_hierarchy_id",
+            "table": "category_hierarchy_derived",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_leaf_id",
+            "table": "category_hierarchy_derived",
+            "column": "leaf_category_id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_leaf_name",
+            "table": "category_hierarchy_derived",
+            "column": "leaf_category_name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_cat_id",
+            "table": "product_to_category_hierarchy_derived",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level0_name",
+            "table": "category_hierarchy_derived",
+            "column": "category_l0_name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level1_name",
+            "table": "category_hierarchy_derived",
+            "column": "category_l1_name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level2_name",
+            "table": "category_hierarchy_derived",
+            "column": "category_l2_name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level3_name",
+            "table": "category_hierarchy_derived",
+            "column": "category_l3_name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level0_id",
+            "table": "category_hierarchy_derived",
+            "column": "category_l0_id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level1_id",
+            "table": "category_hierarchy_derived",
+            "column": "category_l1_id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level2_id",
+            "table": "category_hierarchy_derived",
+            "column": "category_l2_id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "category_level3_id",
+            "table": "category_hierarchy_derived",
+            "column": "category_l3_id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_id",
+            "table": "dim_product",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_name",
+            "table": "dim_product",
+            "column": "name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_asin",
+            "table": "dim_product",
+            "column": "asin",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_thumbnail",
+            "table": "dim_product",
+            "column": "thumbnail",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_brand",
+            "table": "dim_product",
+            "column": "brand",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_publisher",
+            "table": "dim_product",
+            "column": "publisher",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_attributes",
+            "table": "dim_product",
+            "column": "attributes",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_msrp",
+            "table": "dim_product",
+            "column": "msrp",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sku_id",
+            "table": "dim_sku",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sku_name",
+            "table": "dim_sku",
+            "column": "name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sku_msrp",
+            "table": "dim_sku",
+            "column": "msrp",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sku_asin",
+            "table": "dim_sku",
+            "column": "asin",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sku_thumbnail",
+            "table": "dim_sku",
+            "column": "thumbnail",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sku_attributes",
+            "table": "dim_sku",
+            "column": "attributes",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "channel_id",
+            "table": "dim_channel",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "channel_name",
+            "table": "dim_channel",
+            "column": "name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "min",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "dummy_col_m_sku_channel_date",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "dummy_col_1",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_error_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_error_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": "Last Month"
+        },
+        {
+            "name": "forecast_error_2nd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_error_2nd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_error_3rd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_error_3rd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_error_last_month_underperform",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_error_last_month_underperform",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_error_last_month_overperform",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_error_last_month_overperform",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_last_month_units",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_last_month_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_current_month_units",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_current_month_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": "Current Month"
+        },
+        {
+            "name": "forecast_next_month_units",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_next_month_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": "Next Month"
+        },
+        {
+            "name": "forecast_next_2nd_month_units",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_next_2nd_month_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": "Month After Next"
+        },
+        {
+            "name": "forecast_sell_in_velocity_current_month",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_sell_in_velocity_current_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units/Day",
+            "time_range": "Current Month"
+        },
+        {
+            "name": "forecast_sell_in_velocity_next_month",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_sell_in_velocity_next_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units/Day",
+            "time_range": "Next Month"
+        },
+        {
+            "name": "forecast_sell_in_velocity_next_2nd_month",
+            "table": "m_sku_channel_merged",
+            "column": "forecast_sell_in_velocity_next_2nd_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units/Day",
+            "time_range": "Month After Next"
+        },
+        {
+            "name": "sales_velocity_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_velocity_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units/Day",
+            "time_range": " Last Month"
+        },
+        {
+            "name": "sales_velocity_2nd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_velocity_2nd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units/Day",
+            "time_range": "Month Before Last"
+        },
+        {
+            "name": "sales_velocity_3rd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_velocity_3rd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_velocity_last_month_dollars",
+            "table": "m_sku_channel_merged",
+            "column": "sales_velocity_last_month_dollars",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_velocity_2nd_last_month_dollars",
+            "table": "m_sku_channel_merged",
+            "column": "sales_velocity_2nd_last_month_dollars",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_velocity_3rd_last_month_dollars",
+            "table": "m_sku_channel_merged",
+            "column": "sales_velocity_3rd_last_month_dollars",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_current_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_current_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "revenue_current_month",
+            "table": "m_sku_channel_merged",
+            "column": "revenue_current_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_2nd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_2nd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_3rd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "sales_3rd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "revenue_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "revenue_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "revenue_2nd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "revenue_2nd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "revenue_3rd_last_month",
+            "table": "m_sku_channel_merged",
+            "column": "revenue_3rd_last_month",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "past_and_future_sales_date",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "date",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_year",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "year",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sales_month",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "month",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "actual_sales_units",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "actual_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "actual_sales_revenue",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "actual_revenue",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "$",
+            "time_range": null
+        },
+        {
+            "name": "forecasted_units",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "forecast_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "adjusted_units",
+            "table": "fact_past_and_future_sales_orders",
+            "column": "total_adjustment",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "adjusted_forecast_units",
+            "table": null,
+            "column": null,
+            "data_type": null,
+            "type": "measure",
+            "expression": "forecasted_units + adjusted_units",
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "sell_through_date",
+            "table": "sell_through_table",
+            "column": "date",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sell_through_units",
+            "table": "sell_through_table",
+            "column": "ordered_qty",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "sell_in_units_dummy",
+            "table": null,
+            "column": null,
+            "data_type": null,
+            "type": "measure",
+            "expression": "(sell_in_units * 2)",
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "sell_in_date",
+            "table": "sell_in_table",
+            "column": "date",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sell_in_month",
+            "table": "sell_in_table",
+            "column": "month",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sell_in_year",
+            "table": "sell_in_table",
+            "column": "year",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "sell_in_units",
+            "table": "sell_in_table",
+            "column": "ordered_qty",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "sell_in_total_price",
+            "table": "sell_in_table",
+            "column": "total_price",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "sell_in_revenue",
+            "table": "sell_in_table",
+            "column": "sales_revenue",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "$",
+            "time_range": null
+        },
+        {
+            "name": "model_variation_list",
+            "table": "product_variations",
+            "column": "sku_per_model_list",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "product_upc",
+            "table": "product_variations",
+            "column": "upc",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "dummy_col_sku_channel_metrics",
+            "table": "m_sku_channel_merged",
+            "column": "dummy_col",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_id",
+            "table": "past_future_events",
+            "column": "id",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_start_date",
+            "table": "past_future_events",
+            "column": "start_date",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_end_date",
+            "table": "past_future_events",
+            "column": "end_date",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_distribution",
+            "table": "past_future_events",
+            "column": "distribution",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_is_enabled",
+            "table": "past_future_events",
+            "column": "is_enabled",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_name",
+            "table": "past_future_events",
+            "column": "name",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_type",
+            "table": "past_future_events",
+            "column": "type",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "event_percentage",
+            "table": "past_future_events",
+            "column": "percentage",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_date",
+            "table": "forecast_table",
+            "column": "date",
+            "data_type": null,
+            "type": "date",
+            "expression": null,
+            "resolution": null,
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_units",
+            "table": "forecast_table",
+            "column": "forecast_units",
+            "data_type": null,
+            "type": "measure",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "Units",
+            "time_range": null
+        },
+        {
+            "name": "mtd_sell_in_current_month",
+            "table": null,
+            "column": null,
+            "data_type": null,
+            "type": "measure",
+            "expression": "(((forecast_current_month_units - sales_current_month) / forecast_current_month_units) * 100)",
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "%",
+            "time_range": null
+        },
+        {
+            "name": "dummy_col_forecast_table",
+            "table": "forecast_table",
+            "column": "dummy_col_1",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "dummy_col_sell_thru",
+            "table": "sell_through_table",
+            "column": "dummy_col_sell_thru",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "dummy_col_sell_in",
+            "table": "sell_in_table",
+            "column": "dummy_col_sell_in",
+            "data_type": null,
+            "type": "dimension",
+            "expression": null,
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": null,
+            "time_range": null
+        },
+        {
+            "name": "forecast_error_percentage_last_month",
+            "table": null,
+            "column": null,
+            "data_type": null,
+            "type": "measure",
+            "expression": "((forecast_error_last_month * 100) / sales_last_month)",
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "%",
+            "time_range": "Last Month"
+        },
+        {
+            "name": "forecast_error_percentage_2nd_last_month",
+            "table": null,
+            "column": null,
+            "data_type": null,
+            "type": "measure",
+            "expression": "((forecast_error_2nd_last_month * 100) / sales_2nd_last_month)",
+            "resolution": "post-aggregation",
+            "default_aggregation": "sum",
+            "unit": "%",
+            "time_range": "Month Before Last"
+        }
+    ],
+    "relationships": [
+        {
+            "source": {
+                "table": "dim_channel",
+                "column": "id"
+            },
+            "target": {
+                "table": "past_future_events",
+                "column": "channel_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "product_forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_product",
+                "column": "id"
+            },
+            "target": {
+                "table": "product_variations",
+                "column": "product_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "products_listing",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_channel",
+                "column": "id"
+            },
+            "target": {
+                "table": "sell_through_table",
+                "column": "channel_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "product_overview",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_sku",
+                "column": "id"
+            },
+            "target": {
+                "table": "sell_through_table",
+                "column": "sku_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "product_overview",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_hierarchy",
+                "column": "id"
+            },
+            "target": {
+                "table": "category_hierarchy_derived",
+                "column": "hierarchy_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast",
+                "products_listing"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_product",
+                "column": "id"
+            },
+            "target": {
+                "table": "product_to_category_hierarchy_derived",
+                "column": "product_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "products_listing",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "category_hierarchy_derived",
+                "column": "id"
+            },
+            "target": {
+                "table": "product_to_category_hierarchy_derived",
+                "column": "category_hierarchy_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "products_listing",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_product",
+                "column": "id"
+            },
+            "target": {
+                "table": "dim_sku",
+                "column": "product_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast",
+                "product_overview"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_sku",
+                "column": "id"
+            },
+            "target": {
+                "table": "m_sku_channel_merged",
+                "column": "sku_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast",
+                "product_overview"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_channel",
+                "column": "id"
+            },
+            "target": {
+                "table": "m_sku_channel_merged",
+                "column": "channel_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast",
+                "product_overview"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_sku",
+                "column": "id"
+            },
+            "target": {
+                "table": "fact_past_and_future_sales_orders",
+                "column": "sku_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_channel",
+                "column": "id"
+            },
+            "target": {
+                "table": "fact_past_and_future_sales_orders",
+                "column": "channel_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_sku",
+                "column": "id"
+            },
+            "target": {
+                "table": "forecast_table",
+                "column": "sku_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_channel",
+                "column": "id"
+            },
+            "target": {
+                "table": "forecast_table",
+                "column": "channel_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_channel",
+                "column": "id"
+            },
+            "target": {
+                "table": "sell_in_table",
+                "column": "channel_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "product_overview",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_sku",
+                "column": "id"
+            },
+            "target": {
+                "table": "sell_in_table",
+                "column": "sku_id"
+            },
+            "join": "inner",
+            "contexts": [
+                "product_overview",
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_product",
+                "column": "description"
+            },
+            "target": {
+                "table": "dim_channel",
+                "column": "type"
+            },
+            "join": "inner",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "dim_hierarchy",
+                "column": "name"
+            },
+            "target": {
+                "table": "product_variations",
+                "column": "dssd"
+            },
+            "join": "left",
+            "contexts": []
+        },
+        {
+            "source": {
+                "table": "dim_hierarchy",
+                "column": "name"
+            },
+            "target": {
+                "table": "dim_hierarchy",
+                "column": "label"
+            },
+            "join": "left",
+            "contexts": [
+                "forecast"
+            ]
+        },
+        {
+            "source": {
+                "table": "forecast_table",
+                "column": "sd"
+            },
+            "target": {
+                "table": "forecast_table",
+                "column": "dsd"
+            },
+            "join": "left",
+            "contexts": [
+                "forecast",
+                "products_listing",
+                "product_overview",
+                "product_forecast",
+                "Context 01"
+            ]
+        }
+    ]
+}

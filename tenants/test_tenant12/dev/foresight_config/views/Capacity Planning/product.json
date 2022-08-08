@@ -1,0 +1,192 @@
+{
+  "label": "Product",
+  "domain": "product",
+  "owner": "system",
+  "is_dynamic": false,
+  "is_in_dashboard": true,
+  "description": "desc",
+  "columns": {
+    "Product": [
+      {
+        "name": "sku_id",
+        "label": "SKU ID",
+        "type": "dimension",
+        "aggregation": "sum",
+        "is_searchable": false,
+        "is_required": false,
+        "is_selectable": true,
+        "is_editable": false,
+        "is_filterable": true,
+        "is_sortable": false
+      }
+    ],
+    "Forecast": [
+      {
+        "name": "sales_current_month",
+        "label": "Sales Quantity",
+        "type": "measure",
+        "aggregation": "sum",
+        "is_searchable": true,
+        "is_required": false,
+        "is_selectable": true,
+        "is_editable": false,
+        "is_filterable": true,
+        "is_sortable": true
+      }
+    ]
+  },
+  "composite_columns": {
+    "Product Details": {
+      "id": "sales_current_month",
+      "name": "sales_current_month",
+      "thumbnail": "sales_current_month",
+      "model_variation_list": "sales_current_month",
+      "attributes": "sales_current_month"
+    }
+  },
+  "primary_filters": {
+    "Channels": {
+      "filter_cols": [],
+      "display_cols": [],
+      "query": "query_2"
+    }
+  },
+  "tables": {
+    "Forecast": {
+      "label": "Forecast",
+      "columns": [
+        "sku_id",
+        "sales_current_month"
+      ],
+      "query": "query_2",
+      "sort_by": {
+        "column": "sales_current_month",
+        "desc": false
+      },
+      "limit": {
+        "count": 76,
+        "offset": 97
+      }
+    },
+    "klk": {
+      "label": "klk",
+      "columns": [
+        "sku_id",
+        "sales_current_month"
+      ],
+      "query": "query_2",
+      "sort_by": {
+        "column": "sales_current_month",
+        "desc": false
+      },
+      "limit": {
+        "count": 76,
+        "offset": 97
+      }
+    },
+    "fdsffsdfdsf": {
+      "label": "fdsffsdfdsf",
+      "columns": [],
+      "query": "query123",
+      "sort_by": {
+        "column": "sales_current_month",
+        "desc": false
+      },
+      "limit": {
+        "count": 0,
+        "offset": 0
+      }
+    },
+    "kjljfljfsdlfjdslfjsdlf": {
+      "label": "kjljfljfsdlfjdslfjsdlf",
+      "columns": [
+        "sku_id",
+        "sales_current_month"
+      ],
+      "query": "query123",
+      "sort_by": {
+        "column": "sales_current_month",
+        "desc": false
+      },
+      "limit": {
+        "count": 0,
+        "offset": 0
+      }
+    }
+  },
+  "charts": {
+    "asads": {
+      "label": "asads",
+      "is_disabled": true,
+      "is_in_dashboard": true,
+      "cadence": "weekly",
+      "today": "2022-06-27",
+      "history": 34,
+      "horizon": 87,
+      "x_label": "Date",
+      "series": [
+        {
+          "name": "series_1",
+          "y_label": "value",
+          "past": {
+            "query": "query_2",
+            "x": "col_1",
+            "y": "col_1"
+          },
+          "future": {
+            "query": "query_2",
+            "x": "col_1",
+            "y": "col_1"
+          },
+          "type": "bar",
+          "align": "left",
+          "color": "#ffff23",
+          "agg": "sum",
+          "freq": "D",
+          "fill_na": "0",
+          "range": {
+            "min": 2,
+            "max": 34
+          }
+        }
+      ]
+    },
+    "new_chart_group": {
+      "label": "new_chart_group",
+      "is_disabled": false,
+      "is_in_dashboard": false,
+      "cadence": "weekly",
+      "today": "",
+      "history": 1223,
+      "horizon": 12345,
+      "x_label": "Date",
+      "series": []
+    }
+  },
+  "metrics": {
+    "is_disabled": false,
+    "fields": [
+      {
+        "column": "sku_id",
+        "query": "query_2",
+        "is_selected": true,
+        "is_in_dashboard": true
+      },
+      {
+        "column": "sales_current_month",
+        "query": "quer123",
+        "is_selected": true,
+        "is_in_dashboard": false
+      }
+    ]
+  },
+  "filters": [
+    {
+      "is_primary": true,
+      "column_name": "sku_id",
+      "operator": "!=",
+      "value": "3232",
+        "is_or": false
+    }
+  ]
+}

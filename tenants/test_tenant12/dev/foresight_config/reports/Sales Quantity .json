@@ -1,0 +1,21 @@
+{
+    "label": null,
+    "domain": null,
+    "owner": "system",
+    "is_dynamic": false,
+    "is_in_dashboard": true,
+    "description": null,
+    "columns": null,
+    "composite_columns": null,
+    "primary_filters": null,
+    "tables": null,
+    "charts": null,
+    "metrics": null,
+    "filters": null,
+    "name": "Sales Quantity",
+    "section": null,
+    "is_disabled": false,
+    "chart": null,
+    "table": null,
+    "pivot_params": null
+}

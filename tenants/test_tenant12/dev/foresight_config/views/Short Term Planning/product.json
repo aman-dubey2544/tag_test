@@ -1,0 +1,24 @@
+{
+  "label": "Product",
+  "domain": "product",
+  "owner": "system",
+  "is_dynamic": false,
+  "description": "Products view",
+  "columns": {
+  },
+  "composite_columns": {
+  },
+  "primary_filters": {
+  },
+  "tables": {
+  },
+  "charts": {
+  },
+  "metrics": {
+    "is_disabled": false,
+    "fields": [
+    ]
+  },
+  "filters": [
+  ]
+}

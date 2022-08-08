@@ -1,0 +1,18 @@
+{
+    "model": {
+        "run_id": null,
+        "last_run": 1659533823085,
+        "result": null,
+        "error": "Traceback (most recent call last):\n  File \"/app/demand-forecasting/external_apps/super_admin_app_v2/backend/services/semantic_validation_service.py\", line 208, in compile_semantic_model\n    return Compiler(verbose=False, model_file_path=abs_model_path), None\n  File \"/usr/local/lib/python3.8/site-packages/foresight_ql/core/compiler.py\", line 28, in __init__\n    self.__semantic_layer = SemanticModelBuilder(model_file_path=model_file_path,\n  File \"/usr/local/lib/python3.8/site-packages/foresight_ql/core/model_loader.py\", line 39, in __init__\n    self.__build()\n  File \"/usr/local/lib/python3.8/site-packages/foresight_ql/core/model_loader.py\", line 165, in __build\n    raise Exception(\nException: Relationship forecast_table->forecast_table not in context 'products_listing'!\n",
+        "status": "COMPLETED"
+    },
+    "query": {
+        "run_id": null,
+        "last_run": null,
+        "result": null,
+        "error": null,
+        "status": "COMPLETED"
+    },
+    "views": {},
+    "reports": {}
+}

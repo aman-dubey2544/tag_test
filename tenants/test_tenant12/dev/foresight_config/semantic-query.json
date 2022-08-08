@@ -1,0 +1,188 @@
+{
+    "testss": {
+        "name": "testss",
+        "description": "",
+        "is_main_query": true,
+        "include_external_columns": true,
+        "include_external_filters": true,
+        "include_external_limit": false,
+        "columns": [
+            "hello"
+        ],
+        "filters": [],
+        "subquery_filter": null,
+        "order_by": null,
+        "limit": {
+            "count": 0,
+            "offset": 0
+        },
+        "aggregate": false,
+        "aggregate_type": null,
+        "distinct": false,
+        "params": {}
+    },
+    "test_1234": {
+        "name": "test_1234",
+        "description": "ssdvvsvsdvsdvsdv",
+        "is_main_query": true,
+        "include_external_columns": true,
+        "include_external_filters": true,
+        "include_external_limit": false,
+        "columns": [],
+        "filters": [],
+        "subquery_filter": {
+            "columns": [],
+            "query": ""
+        },
+        "order_by": {
+            "column": null,
+            "desc": false
+        },
+        "limit": {
+            "count": 50,
+            "offset": 0
+        },
+        "aggregate": false,
+        "aggregate_type": null,
+        "distinct": true,
+        "params": {}
+    },
+    "all_the_tests": {
+        "name": "all_the_tests",
+        "description": "",
+        "is_main_query": true,
+        "include_external_columns": true,
+        "include_external_filters": false,
+        "include_external_limit": false,
+        "columns": [],
+        "filters": [],
+        "subquery_filter": {
+            "columns": [],
+            "query": ""
+        },
+        "order_by": null,
+        "limit": {
+            "count": 50,
+            "offset": 0
+        },
+        "aggregate": false,
+        "aggregate_type": null,
+        "distinct": true,
+        "params": {}
+    },
+    "quer123_": {
+        "name": "quer123_",
+        "description": "query_2 string",
+        "is_main_query": true,
+        "include_external_columns": false,
+        "include_external_filters": false,
+        "include_external_limit": false,
+        "columns": [
+            "col_1",
+            "col_2"
+        ],
+        "filters": [
+            {
+                "column": "col_1",
+                "operator": ">",
+                "value": "23",
+                "is_or": false,
+                "value_is_expression": false
+            }
+        ],
+        "subquery_filter": null,
+        "order_by": null,
+        "limit": {
+            "count": 23,
+            "offset": 23
+        },
+        "aggregate": false,
+        "aggregate_type": null,
+        "distinct": true,
+        "params": {
+            "name34": "param_1",
+            "value23": "val_1"
+        }
+    },
+    "test_2_3_4": {
+        "name": "test_2_3_4",
+        "description": "Desct",
+        "is_main_query": true,
+        "include_external_columns": true,
+        "include_external_filters": true,
+        "include_external_limit": false,
+        "columns": null,
+        "filters": null,
+        "subquery_filter": null,
+        "order_by": null,
+        "limit": null,
+        "aggregate": true,
+        "aggregate_type": "sum",
+        "distinct": false,
+        "params": null
+    },
+    "quer123": {
+        "name": "quer123",
+        "description": "query_2 string",
+        "is_main_query": true,
+        "include_external_columns": false,
+        "include_external_filters": false,
+        "include_external_limit": false,
+        "columns": [
+            "col_1",
+            "col_2"
+        ],
+        "filters": [
+            {
+                "column": "col_1",
+                "operator": ">",
+                "value": "23",
+                "is_or": false,
+                "value_is_expression": false
+            }
+        ],
+        "subquery_filter": null,
+        "order_by": null,
+        "limit": {
+            "count": 23,
+            "offset": 23
+        },
+        "aggregate": false,
+        "aggregate_type": null,
+        "distinct": true,
+        "params": {
+            "name34": "param_1",
+            "value23": "val_1"
+        }
+    },
+    "query1_hdsbc": {
+        "name": "query1_hdsbc",
+        "description": "query_1 st",
+        "is_main_query": true,
+        "include_external_columns": false,
+        "include_external_filters": false,
+        "include_external_limit": false,
+        "columns": [
+            "col_1",
+            "col_2"
+        ],
+        "filters": [
+            {
+                "column": "col_1",
+                "operator": ">",
+                "value": "23",
+                "is_or": false,
+                "value_is_expression": false
+            }
+        ],
+        "subquery_filter": null,
+        "order_by": null,
+        "limit": null,
+        "aggregate": true,
+        "aggregate_type": "sum",
+        "distinct": true,
+        "params": {
+            "param_1": "val_1"
+        }
+    }
+}

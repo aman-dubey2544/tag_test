@@ -1,0 +1,550 @@
+{
+    "label": "Second Reportkkk",
+    "domain": null,
+    "owner": "system",
+    "is_dynamic": false,
+    "is_in_dashboard": true,
+    "description": "Test UI",
+    "columns": {
+        "Default": [
+            {
+                "name": "actual_sales_revenue",
+                "label": "test",
+                "type": "measure"
+            },
+            {
+                "name": "actual_sales_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "adjusted_forecast_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "adjusted_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "category_hierarchy_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_leaf_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_leaf_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level0_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level0_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level1_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level1_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level2_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level2_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level3_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "category_level3_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "channel_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "channel_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "dummy_col_forecast_table",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "dummy_col_m_sku_channel_date",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "dummy_col_sell_in",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "dummy_col_sell_thru",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "dummy_col_sku_channel_metrics",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_distribution",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_end_date",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_is_enabled",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_percentage",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_start_date",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "event_type",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "forecast_current_month_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_date",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "forecast_error_2nd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_error_3rd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_error_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_error_last_month_overperform",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_error_last_month_underperform",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_error_percentage_2nd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_error_percentage_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_last_month_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_next_2nd_month_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_next_month_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_sell_in_velocity_current_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_sell_in_velocity_next_2nd_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_sell_in_velocity_next_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecast_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "forecasted_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "hierarchy_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "hierarchy_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "model_variation_list",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "mtd_sell_in_current_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "past_and_future_sales_date",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "product_asin",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_attributes",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_brand",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_cat_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_msrp",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_publisher",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_thumbnail",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "product_upc",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "revenue_2nd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "revenue_3rd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "revenue_current_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "revenue_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_2nd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_3rd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_current_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_month",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "sales_velocity_2nd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_velocity_2nd_last_month_dollars",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_velocity_3rd_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_velocity_3rd_last_month_dollars",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_velocity_last_month",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_velocity_last_month_dollars",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sales_year",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "sell_in_date",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "sell_in_month",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "sell_in_revenue",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sell_in_total_price",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sell_in_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sell_in_units_dummy",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sell_in_year",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "sell_through_date",
+                "label": null,
+                "type": "date"
+            },
+            {
+                "name": "sell_through_units",
+                "label": null,
+                "type": "measure"
+            },
+            {
+                "name": "sku_asin",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "sku_attributes",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "sku_id",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "sku_msrp",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "sku_name",
+                "label": null,
+                "type": "dimension"
+            },
+            {
+                "name": "sku_thumbnail",
+                "label": null,
+                "type": "dimension"
+            }
+        ]
+    },
+    "composite_columns": null,
+    "primary_filters": {
+        "hello": {
+            "filter_cols": [
+                "col_1",
+                "col_2"
+            ],
+            "display_cols": [
+                "col_1",
+                "col_2"
+            ],
+            "query": "query123"
+        }
+    },
+    "tables": null,
+    "charts": null,
+    "metrics": null,
+    "filters": null,
+    "name": "second_report_new_hhhfdf",
+    "section": "Test Section",
+    "is_disabled": false,
+    "chart": {
+        "label": "hello",
+        "is_disabled": false,
+        "series": []
+    },
+    "table": {
+        "label": "hello",
+        "columns": [
+            "actual_sales_revenue",
+            "actual_sales_units"
+        ],
+        "query": "query123",
+        "sort_by": null,
+        "limit": {
+            "count": 2,
+            "offset": 0
+        }
+    },
+    "pivot_params": {
+        "column": {
+            "column": "actual_sales_revenue",
+            "data_type": "float"
+        },
+        "row": {
+            "column": "actual_sales_revenue",
+            "data_type": "float"
+        },
+        "row_header": "dsdsf",
+        "values": [
+            {
+                "column": "actual_sales_revenue",
+                "agg": "sum"
+            },
+            {
+                "column": "actual_sales_units",
+                "agg": "sum"
+            },
+            {
+                "column": "adjusted_forecast_units",
+                "agg": "sum"
+            },
+            {
+                "column": "adjusted_units",
+                "agg": "sum"
+            }
+        ],
+        "filters": null,
+        "enable_totals": true,
+        "total_column_label": "Tota",
+        "config": null,
+        "format": null
+    }
+}

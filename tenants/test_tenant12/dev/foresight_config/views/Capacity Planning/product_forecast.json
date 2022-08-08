@@ -1,0 +1,24 @@
+{
+  "label": "Product Forecast",
+  "domain": "product_forecast",
+  "owner": "system",
+  "is_dynamic": false,
+  "description": "Product forecast view",
+  "columns": {
+  },
+  "composite_columns": {
+  },
+  "primary_filters": {
+  },
+  "tables": {
+  },
+  "charts": {
+  },
+  "metrics": {
+    "is_disabled": false,
+    "fields": [
+    ]
+  },
+  "filters": [
+  ]
+}
